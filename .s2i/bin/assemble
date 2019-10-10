@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+echo "This is start of assemble script"
+
+set -ex
+
+if [[ "$1" == "-h" ]]; then
+	exec /tmp/scripts/usage
+fi
+
+# Restore artifacts from the previous build (if they exist).
+#
+if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
+  echo "---> Restoring build artifacts..."
+  mv /tmp/artifacts/. ./
+fi
+
+mkdir /opt/app-root/src/output
+
+mkdir /opt/app-root/src/input
+
+echo "---> Installing application source"
+
+cp -Rf /tmp/src/. /opt/app-root/src/
+
+echo "---> Check contents of /opt/app-root/src/"
+ls -la /opt/app-root/src/
+
+echo "---> Training the model"
+python /opt/app-root/src/tensorflowapp-sample/tensorflowapp-training.py --prefix mnist- --saved_model_name my_saved_model /opt/app-root/src/input /opt/app-root/src/output
+
+echo "---> Sleeping after training"
+sleep 10;
+
+echo "---> Training complete"
+echo "---> Model location: /opt/app-root/src/output/my_saved_model/1/"
+
+echo "---> Check model"
+ls -la /opt/app-root/src/output/my_saved_model/1/

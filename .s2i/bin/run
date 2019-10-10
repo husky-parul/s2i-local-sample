@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+echo "tis is run script"
